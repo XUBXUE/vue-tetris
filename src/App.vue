@@ -1,23 +1,28 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import Block from './components/block.vue';
-import type { BlockState } from "./type";
 
 const width = 10;
 
-const height = 20;
+const height = 20
 
-const board = ref<BlockState[][]>(
-  Array.from({ length: height }, (_, y) =>
-    Array.from({ length: width }, (_, x) => ({
-      x,
-      y,
-      full: false,
-    })),
-  ),
+const board = ref<number[]>(
+  Array.from({ length: height }, () => 0),
 );
 
-console.log(board.value);
+// const currentShape = ref();
+
+const convertToBinary = (num: number, length: number) => {
+  let binary = num.toString(2);
+
+  if (binary.length > length) return binary;
+
+  return binary.padStart(length, binary);
+};
+
+// const generateShape = () => {
+//   const square = [];
+// };
 </script>
 
 <template>
@@ -28,31 +33,10 @@ console.log(board.value);
       :key="y"
     >
       <Block
-        class="flex h-5 w-5 p-0.5 cursor-pointer items-center justify-center border-2 border-gray-500/20"
-        v-for="(block, x) in row"
+        v-for="(placeholder, x) in convertToBinary(row, width)"
         :key="x"
-        :block="block"
+        :placeholder="placeholder"
       />
     </div>
-    <!-- <div class="m-2 flex items-center justify-between">
-        <button
-          class="rounded bg-gray-500/20 p-2 text-white hover:bg-gray-500/50"
-          @click="simple"
-        >
-          Simple
-        </button>
-        <button
-          class="rounded bg-gray-500/20 p-2 text-white hover:bg-gray-500/50"
-          @click="normal"
-        >
-          Normal
-        </button>
-        <button
-          class="rounded bg-gray-500/20 p-2 text-white hover:bg-gray-500/50"
-          @click="difficult"
-        >
-          Difficult
-        </button>
-      </div> -->
   </div>
 </template>
