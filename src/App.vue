@@ -28,7 +28,7 @@ const line = [120];
 
 const blocks = [square, line];
 
-let currentShape: IShape;
+let currentBlock: IShape;
 
 const generateShape = (block: number[]): IShape  => {
   return {
@@ -46,14 +46,19 @@ const convertToBinary = (num: number, length: number) => {
 };
 
 const down = () => {
-  const { positionY, block } = currentShape;
+  console.log('1')
+  // 当前方块信息
+  const { positionY, block } = currentBlock;
+  // 方块的高度
   const blockHeight = block.length;
+  // 将要下降的纵向坐标索引
   let nextPositionY = positionY + 1;
+  // 将要下降的行的信息
   let nextBoardRow = board.value[nextPositionY];
-  currentShape.positionY = nextPositionY;
+  currentBlock.positionY = nextPositionY;
 
-  // 如果当前形状位置下方有其他方块时，停止下降
-  if ((block[blockHeight - 1] & nextBoardRow) > 0) {
+  // 如果当前形状位置下方有其他方块或下降到最底下时停止下降
+  if ((block[blockHeight - 1] & nextBoardRow) > 0 || nextPositionY >= height) {
     clearInterval(timer);
     return;
   };
@@ -67,8 +72,8 @@ const down = () => {
 };
 
 const start = () => {
-  currentShape = generateShape(blocks[Math.floor(Math.random() * blocks.length)]);
-  console.log(currentShape);
+  currentBlock = generateShape(blocks[Math.floor(Math.random() * blocks.length)]);
+  console.log(currentBlock);
   timer = setInterval(down, 1000);
 };
 
