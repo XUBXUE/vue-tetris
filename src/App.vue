@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, ref } from "vue";
+import { ref } from "vue";
 import Block from './components/block.vue';
 import { cloneDeep } from "lodash-es";
 
@@ -65,19 +65,19 @@ const reset = () => {
 }
 
 const next = () => {
-  nextTick(() => {
-    if (board.value[0] > 0) {
-      // alert('GAME OVER!!!');
+  if (board.value[0] > 0) {
+    setTimeout(() => {
+      alert('GAME OVER!!!');
       reset();
-      return;
-    }
+    }, 100);
+    return;
+  }
 
-    if (!currentBlock) {
-      currentBlock = generateShape(blocks[Math.floor(Math.random() * blocks.length)]);
-    }
+  if (!currentBlock) {
+    currentBlock = generateShape(blocks[Math.floor(Math.random() * blocks.length)]);
+  }
 
-    timer = setInterval(down, DURATION);
-  });
+  timer = setInterval(down, DURATION);
 }
 
 const down = () => {
