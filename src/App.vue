@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { nextTick, onMounted, ref } from "vue";
 import Block from './components/block.vue';
 import { cloneDeep } from "lodash-es";
+import { ElMessage } from 'element-plus'
 
 enum EState {
   play = 'play',
@@ -17,7 +18,7 @@ let timer: number | null;
 
 const WIDTH = 10;
 
-const HEIGHT = 5;
+const HEIGHT = 20;
 
 const DURATION = 1000;
 
@@ -66,10 +67,11 @@ const reset = () => {
 
 const next = () => {
   if (board.value[0] > 0) {
-    setTimeout(() => {
-      alert('GAME OVER!!!');
-      reset();
-    }, 100);
+    ElMessage({
+      message: 'GAME OVER!!!',
+      type: 'error',
+      plain: true,
+    })
     return;
   }
 
@@ -126,8 +128,62 @@ const down = () => {
   };
 };
 
+const left = () => {
+  if (state.value === EState.pause) return;
+
+
+}
+
+const right = () => {};
+
 const start = () => {
   next();
+};
+
+// 瞬间掉落
+const drop = () => {
+  if (state.value === EState.pause) return;
+  
+  if (!currentBlock) return;
+
+  const { block, positionY } = currentBlock;
+  const blockHeight = block.length;
+  // 当前块最底部的行
+  const blockBottom = block[blockHeight - 1];
+  // 第一个非空行的索引
+  const firstNonEmptyBoardIndex = board.value.slice(positionY + 1).findIndex(board => (board & blockBottom) > 0);
+
+  // 存在该位置就渐落到firstNonEmptyBoardIndex上一个索引的位置，不存在该位置，表示可以直接降落到底部
+  const finalPositionY = ~firstNonEmptyBoardIndex ? firstNonEmptyBoardIndex - 1 : HEIGHT - 1;
+  
+  // 把当前块所占位置清除掉
+  for (let i = blockHeight - 1, y = positionY; i >= 0; i--) {
+    // y小于0时证明所有块所占行都已清除，或部分块未展示，所以跳出循环
+    if (y < 0) break;
+
+    // 先用当前格子行取反，再与方块行取或，再取反，得到方块去除后的格子
+    let currentClearRow = ~board.value[y];
+    board.value[y--] = ~(currentClearRow | block[i]);
+  }
+
+  // 向下移动
+  for (let i = blockHeight - 1, y = finalPositionY, nextBoardRow = board.value[finalPositionY]; i >= 0; i--) {
+    // 更新格子行
+    board.value[y] = nextBoardRow | block[blockHeight - 1];
+
+    // 如果最底下位置没有方块高度大，就不渲染多余的，跳出循环
+    if (y < blockHeight - 1) break;
+
+    nextBoardRow = board.value[--y];
+  }
+
+  nextTick(() => {
+    timer && clearInterval(timer);
+    timer = null;
+    currentBlock = null;
+    // 重新开始
+    next();
+  })
 };
 
 const pause = () => {
@@ -144,10 +200,23 @@ const toggleState = () => {
     pause();
   }
 }
+
+onMounted(() => {
+  document.addEventListener('keydown', (e: KeyboardEvent) => {
+    if (e.key === 'ArrowLeft') {
+      left();
+    } else if (e.key === 'ArrowRight') {
+      right();
+    } else if (e.key === ' ') {
+      e.preventDefault()
+      drop();
+    }
+  })
+})
 </script>
 
 <template>
-  <div class="flex flex-col gap-px items-center justify-center pt-10">
+  <div class="flex flex-col gap-px items-center justify-center mt-40">
     <div
       class="flex items-center justify-center gap-px"
       v-for="(row, y) in board"
@@ -161,7 +230,7 @@ const toggleState = () => {
     </div>
   </div>
   <div class="flex justify-center mt-2">
-    <button class="border p-1 border-gray-500/50 rounded text-sm" @click="toggleState">{{ state === EState.play ? '暂停' : '开始' }}</button>
-    <button class="border p-1 border-gray-500/50 rounded text-sm ml-2" @click="reset">重开</button>
+    <button class="border p-1 border-gray-500/50 rounded text-sm text-gray-500" @click="toggleState">{{ state === EState.play ? '暂停' : '开始' }}</button>
+    <button class="border p-1 border-gray-500/50 rounded text-sm text-gray-500 ml-2" @click="reset">重开</button>
   </div>
 </template>
