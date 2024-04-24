@@ -3,7 +3,7 @@ import { ref } from "vue";
 import Block from './components/block.vue';
 import { ElMessage } from 'element-plus';
 import { cloneDeep } from "lodash-es";
-import { useKeyboard } from './hooks/useKeyboard';
+import { useKeyboard } from './composables';
 
 enum EState {
   play = 'play',
@@ -153,8 +153,6 @@ const drop = () => {
   if (state.value === EState.pause) return;
   
   if (!currentBlock) return;
-
-  if (currentBlock.positionY < 0) return;
 
   const { block, positionY } = currentBlock;
 
