@@ -103,6 +103,12 @@ const moveToNextRow = (block: IShape['block'], positionY: IShape['positionY'], b
 }
 
 const down = () => {
+  console.log('down');
+
+  if (state.value === EState.pause) return;
+  
+  if (!currentBlock) return;
+
   // 当前方块信息
   const { positionY, block } = currentBlock!;
   // 方块的高度
@@ -135,8 +141,8 @@ const down = () => {
 const left = () => {
   console.log('left');
   if (state.value === EState.pause) return;
-
-
+  
+  if (!currentBlock) return;
 }
 
 const right = () => {
