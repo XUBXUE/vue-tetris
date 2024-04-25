@@ -166,8 +166,8 @@ const left = () => {
   if (cannotMoveToLeft) return;
 
   // 向左移动
-  for (let i = 0, y = positionY; i < block.length; i++) {
-    board.value[y--] = (block[i] = block[i] << 1);
+  for (let i = block.length - 1, y = positionY; i >= 0; i--) {
+    board.value[y--] = (block[i] = block[i] << 1) | fillingRowWithOutBlock[i];
   }
 }
 
@@ -199,8 +199,8 @@ const right = () => {
   if (cannotMoveToLeft) return;
 
   // 向左移动
-  for (let i = 0, y = positionY; i < block.length; i++) {
-    board.value[y--] = (block[i] = block[i] >> 1);
+  for (let i = block.length - 1, y = positionY; i >= 0; i--) {
+    board.value[y--] = (block[i] = block[i] >> 1) | fillingRowWithOutBlock[i];
   }
 };
 
