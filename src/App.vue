@@ -44,7 +44,7 @@ const state = ref<EState>(EState.pause);
 
 const generateShape = (block: number[]): IShape  => {
   return {
-    block,
+    block: cloneDeep(block),
     positionY: 0,
   };
 };
@@ -58,7 +58,7 @@ const convertToBinary = (num: number, length: number = WIDTH) => {
 };
 
 const next = () => {
-  if (board.value[0] > 0) {
+  if (board.value.every(i => i > 0)) {
     ElMessage({
       message: 'GAME OVER!!!',
       type: 'error',

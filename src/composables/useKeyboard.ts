@@ -18,19 +18,20 @@ export const useKeyboard = (keys: string[] | string, fn: EventListener, options?
   }
 
   const keydownEventFn = (e: KeyboardEvent) => {
-    if (isActive) return;
 
     if (!keys.includes(e.key)) return;
+
+    if (isActive) return;
 
     if (e.key === ' ') {
       e.preventDefault();
     }
-
-    fn(e);
-
+    
     if (once) {
       toggleActive();
     }
+
+    fn(e);
   };
 
   const keyupEventFn = () => toggleActive();
