@@ -173,6 +173,35 @@ const left = () => {
 
 const right = () => {
   console.log('right');
+  if (state.value === EState.pause) return;
+  
+  if (!currentBlock) return;
+
+  const { block, positionY } = currentBlock;
+
+  // 当前行去除当前方块所占空间
+  const fillingRowWithOutBlock = board.value
+    .slice(positionY - block.length + 1, positionY + 1)
+    .map((i, index) => {
+      // 在有当前方块占着的行中清除掉当前方块占着的位置
+      return ~(~i | block[index]);
+    });
+
+  /**
+   * 是否不可移动逻辑是
+   * 1.如果块向左移动后与当前行做与运算大于0，表示有块重叠，这表示左侧有方块不能移动
+   * 2.如果当前块和最左边有方块的数据做与运算大于0，说明到最左边了不能移动
+   */
+  const cannotMoveToLeft = fillingRowWithOutBlock.some((row, index) => {
+    return (row & (block[index] >> 1)) > 0 || (block[index] & 1) > 0;
+  });
+
+  if (cannotMoveToLeft) return;
+
+  // 向左移动
+  for (let i = 0, y = positionY; i < block.length; i++) {
+    board.value[y--] = (block[i] = block[i] >> 1);
+  }
 };
 
 const rotate = () => {
