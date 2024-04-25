@@ -49,7 +49,7 @@ const generateShape = (block: number[]): IShape  => {
   };
 };
 
-const convertToBinary = (num: number, length: number) => {
+const convertToBinary = (num: number, length: number = WIDTH) => {
   let binary = num.toString(2);
 
   if (binary.length > length) return binary;
@@ -84,7 +84,7 @@ const clearPreRow = (block: IShape['block'], positionY: IShape['positionY'], blo
     if (y < 0) break;
 
     // 先用当前格子行取反，再与方块行取或，再取反，得到方块去除后的格子
-    let currentClearRow = ~board.value[y];
+    const currentClearRow = ~board.value[y];
     board.value[y--] = ~(currentClearRow | block[i]);
   }
 }
@@ -143,6 +143,32 @@ const left = () => {
   if (state.value === EState.pause) return;
   
   if (!currentBlock) return;
+
+  const { block, positionY } = currentBlock;
+
+  // 当前行去除当前方块所占空间
+  const fillingRowWithOutBlock = board.value
+    .slice(positionY - block.length + 1, positionY + 1)
+    .map((i, index) => {
+      // 在有当前方块占着的行中清除掉当前方块占着的位置
+      return ~(~i | block[index]);
+    });
+
+  /**
+   * 是否不可移动逻辑是
+   * 1.如果块向左移动后与当前行做与运算大于0，表示有块重叠，这表示左侧有方块不能移动
+   * 2.如果当前块和最左边有方块的数据做与运算大于0，说明到最左边了不能移动
+   */
+  const cannotMoveToLeft = fillingRowWithOutBlock.some((row, index) => {
+    return (row & (block[index] << 1)) > 0 || (block[index] & (1 << (WIDTH - 1))) > 0;
+  });
+
+  if (cannotMoveToLeft) return;
+
+  // 向左移动
+  for (let i = 0, y = positionY; i < block.length; i++) {
+    board.value[y--] = (block[i] = block[i] << 1);
+  }
 }
 
 const right = () => {
@@ -225,7 +251,7 @@ useKeyboard(' ', drop, { once: true });
       :key="y"
     >
       <Block
-        v-for="(placeholder, x) in convertToBinary(row, WIDTH)"
+        v-for="(placeholder, x) in convertToBinary(row)"
         :key="x"
         :placeholder="placeholder"
       />
