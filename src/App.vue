@@ -287,7 +287,7 @@ useKeyboard(' ', drop, { once: true });
     </div>
   </div>
   <div class="flex justify-center mt-2">
-    <button class="border p-1 border-gray-500/50 rounded text-sm text-gray-500" @click="toggleState">{{ state === EState.play ? '暂停' : '开始' }}</button>
+    <button class="border p-1 border-gray-500/50 rounded text-sm text-gray-500" @click.prevent="toggleState">{{ state === EState.play ? '暂停' : '开始' }}</button>
     <button class="border p-1 border-gray-500/50 rounded text-sm text-gray-500 ml-2" @click="reset">重开</button>
   </div>
 </template>
